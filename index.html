@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gift Idea Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>Gift Idea Generator</h1>
+
+  <div class="card">
+    <label for="ageSlider">Select Age Group:</label>
+    <input type="range" id="ageSlider" min="0" max="3" step="1" value="1" oninput="updateAgeLabel()" />
+    <div id="ageLabel" class="slider-value"></div>
+
+    <label for="genderSlider">Select Gender:</label>
+    <input type="range" id="genderSlider" min="0" max="2" step="1" value="0" oninput="updateGenderLabel()" />
+    <div id="genderLabel" class="slider-value"></div>
+  </div>
+
+  <div class="card">
+    <div id="idea" class="fade-text">Click the button to get a gift idea!</div>
+    <div id="loader" class="loader" style="display:none;"></div>
+    <button id="generateButton" onclick="generateIdea()">Generate New Idea</button>
+  </div>
+
+  <script>
+    const ageMap = {
+      0: { key: "child", text: "Child (0‑12 years)", emoji: "👶" },
+      1: { key: "teen", text: "Teen (13‑25 years)", emoji: "🧒" },
+      2: { key: "adult", text: "Adult (26‑59 years)", emoji: "🧑" },
+      3: { key: "senior", text: "Senior (60+ years)", emoji: "👴" }
+    };
+
+    const genderMap = {
+      0: { key: "male", text: "Male", emoji: "👦" },
+      1: { key: "female", text: "Female", emoji: "👧" },
+      2: { key: "other", text: "Other", emoji: "⚧️" }
+    };
+
+    const ideas = {
+      child: {
+        male: [
+          "LEGO set", "Remote-controlled car", "Dinosaur puzzle", "Super Mario figure", "Play mat",
+          "Coloring book", "Interactive storybook", "Plush animal", "Adventure park ticket", "Scooter",
+          "Kids' board game", "Toy train", "Shape sorter", "Inflatable pool",
+          "Kids’ guitar", "Microscope kit", "Lego Technic starter set", "Creative craft box",
+          "Zoo ticket", "Kid-safe VR headset"
+        ],
+        female: [
+          "Barbie doll", "Colorful pencil set", "Princess puzzle", "Jewelry-making kit", "Plush unicorn",
+          "Storybook", "Role-play set", "Lantern projector", "Glitter slime", "Toy nail polish set",
+          "Dancing plush toy", "Music box", "Craft set", "Fashion designer toy", "Toy stroller",
+          "Disney princess dress", "Sticker activity book", "Hair braiding toy", "Baby care kit", "Kids’ karaoke mic"
+        ],
+        other: [
+          "Paintable backpack", "Unisex puzzle", "Colorful clay set", "Animal storybook", "Cartoon movie ticket",
+          "Magic drawing board", "Bubble machine", "Rocking horse", "Building blocks", "Creative magnetic board",
+          "Craft clay", "Pet-care toy", "Indoor kids’ tent", "Unicorn lamp",
+          "Sound book", "Creative card-making kit", "Glowing plush toy", "3+ board game", "Toy laptop", "Interactive ball"
+        ]
+      },
+      teen: {
+        male: [
+          "Smartwatch", "Bluetooth speaker", "Video game voucher", "Football", "Marvel figure",
+          "Trendy backpack", "Gamer mouse", "Headphones", "Motivational book", "Chess set",
+          "Table tennis set", "Sci‑fi novel", "VR headset", "Comic subscription", "Cool t‑shirt",
+          "Phone stand with tripod", "Mini drone", "Puzzle cube", "Timed Rubik’s cube", "Puzzle map"
+        ],
+        female: [
+          "Beginner makeup kit", "Notebook set & pencil case", "Creative bullet journal set", "Bluetooth earphones", "Nice journal",
+          "Scented candle", "Stylish phone case", "DIY jewelry kit", "Fashion magazine subscription", "Shopping voucher",
+          "Fashion backpack", "Custom t‑shirt", "Animal mug", "Photo album", "Mini phone printer",
+          "Handmade soap kit", "Beauty care set", "Concert ticket", "Inspirational book", "Scrunchie set"
+        ],
+        other: [
+          "Pop‑it stress toy", "Colorful LED strip", "Bluetooth speaker", "Escape room ticket", "E‑book voucher",
+          "Motivational poster", "Digital notebook", "Unisex beanie", "Phone stand", "Mini projector",
+          "Craft resin/clay kit", "Card game", "Unisex perfume", "Puzzle box", "Creative board game",
+          "Felt set", "Mini desktop darts", "DIY plant growing kit", "Health journal", "Online course voucher"
+        ]
+      },
+      adult: {
+        male: [
+          "Whisky tasting kit", "Smart accessory", "Car phone holder", "Toolset", "Grill tool set",
+          "Leather wallet", "Wine selection", "Minimalist watch", "Desk gadget", "Stylish belt",
+          "Coffee sampler", "Home workout gear", "Book on favorite topic", "Barber voucher", "Cool mug",
+          "Multitool knife", "Mini portable speaker", "Whisky cooling cubes", "Pocket chess", "Concert ticket"
+        ],
+        female: [
+          "Perfume", "Makeup set", "Manicure kit", "Jewelry", "Wellness entry",
+          "Beauty box", "Candle‑making kit", "Dance class voucher", "Women’s wallet", "Wine gift pack",
+          "Fitness class", "Wine glass set", "Creative craft box", "Lifestyle book", "Artisan jewelry",
+          "Relaxing tea sampler", "Scent diffuser", "Hand‑made journal", "Sweet treat box", "Baking set"
+        ],
+        other: [
+          "Book voucher", "Couples' board game", "Unisex perfume", "Smart lamp", "Bamboo coffee mug",
+          "Virtual tour", "Online course", "Craft kit", "Coffee maker accessory", "Digital detox journal",
+          "Puzzle", "Hammock", "Fitness tracker", "Massage ball", "Potted plant",
+          "Indoor plant care kit", "Digital inspiration poster", "Wellbeing box", "Mood lamp", "Creative photo session voucher"
+        ]
+      },
+      senior: {
+        male: [
+          "Crossword puzzle book", "Warm slippers", "Wine gift set", "Classic book", "Tea sampler",
+          "Chess set", "Nostalgia music CD", "Comfort reading lamp", "Card game", "Temperature mug",
+          "Radio", "Sock set", "Warm blanket", "Retro magazine", "60+ board game",
+          "Cigar gift box", "Digital photo frame", "Comfortable pillow", "Puzzle", "Weather station"
+        ],
+        female: [
+          "Knitting kit", "Warm slippers", "Tea gift set", "Floral scented candle", "Romantic novel",
+          "Wine glass set", "Warm scarf", "Artisan sweets", "Recipe journal", "Relaxing CD",
+          "Adult coloring book", "Wellness voucher", "Puzzle", "Comfort pillow", "Home aromatherapy",
+          "Photo album", "Gardening kit", "Embroidery kit", "Personalized mug", "Digital thermometer"
+        ],
+        other: [
+          "Puzzle", "Nostalgia CD", "Book voucher", "Digital photo frame", "Essential oil diffuser",
+          "Massage pillow", "Warm socks", "Experience photo shoot", "Unisex wellness box", "Online library subscription",
+          "Short story collection", "Unisex scarf", "Family board game", "Online chess subscription", "Digital timer",
+          "Smart blood pressure monitor", "Home bird feeder kit", "Vintage picture frame", "Touch reading lamp", "Puzzle subscription"
+        ]
+      }
+    };
+
+    let usedIdeas = [];
+
+    function updateAgeLabel() {
+      const idx = document.getElementById("ageSlider").value;
+      const obj = ageMap[idx];
+      document.getElementById("ageLabel").textContent = `${obj.emoji} ${obj.text}`;
+      resetIdeas();
+    }
+
+    function updateGenderLabel() {
+      const idx = document.getElementById("genderSlider").value;
+      const obj = genderMap[idx];
+      document.getElementById("genderLabel").textContent = `${obj.emoji} ${obj.text}`;
+      resetIdeas();
+    }
+
+    function resetIdeas() {
+      usedIdeas = [];
+      document.getElementById("idea").textContent = "Click the button to get a gift idea!";
+    }
+
+    function generateIdea() {
+      const ideaElem = document.getElementById("idea");
+      const btn = document.getElementById("generateButton");
+      const loader = document.getElementById("loader");
+
+      btn.classList.add("pulse");
+      loader.style.display = "block";
+      ideaElem.style.opacity = 0;
+
+      setTimeout(() => {
+        loader.style.display = "none";
+
+        const ageKey = ageMap[document.getElementById("ageSlider").value].key;
+        const genderKey = genderMap[document.getElementById("genderSlider").value].key;
+
+        const category = ideas[ageKey];
+        if (!category) {
+          ideaElem.textContent = "No gift ideas available for this age group.";
+          ideaElem.style.opacity = 1;
+          btn.classList.remove("pulse");
+          return;
+        }
+
+        let list = category[genderKey] || category["other"];
+        if (!list || list.length === 0) {
+          ideaElem.textContent = "No gift ideas available for this selection.";
+          ideaElem.style.opacity = 1;
+          btn.classList.remove("pulse");
+          return;
+        }
+
+        if (usedIdeas.length === list.length) {
+          usedIdeas = [];
+        }
+
+        const available = list.filter(i => !usedIdeas.includes(i));
+        const randomIdea = available[Math.floor(Math.random() * available.length)];
+
+        usedIdeas.push(randomIdea);
+        ideaElem.textContent = randomIdea;
+        ideaElem.style.opacity = 1;
+        btn.classList.remove("pulse");
+      }, 1500);
+    }
+
+    // init
+    updateAgeLabel();
+    updateGenderLabel();
+  </script>
+</body>
+</html>
